@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Event & Workshop Registration System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Smart Event Hub</h1>
+    </header>
+
+    <div class="top-actions">
+        <button type="button" id="mode">🌙 Dark Mode</button>
+        <button type="button" id="add-new-event">+ เพิ่มกิจกรรมใหม่</button>
+    </div>
+
+    <main>
+        <div class="sidebar-area">
+            <section id="stats-section">
+                <h3>📊 สถิติภาพรวม</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h5>📚 กิจกรรมทั้งหมด: <span class="stat-number" id="total-events">0</span></h5>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h5>✅ ลงทะเบียนแล้ว: <span class="stat-number" id="total-registered">0</span></h5>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h5>👥 ที่นั่งว่างรวม: <span class="stat-number" id="total-seats">0</span></h5>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside>
+                <h3>ค้นหาและกรองข้อมูล</h3>
+                <div class="form-group">
+                    <label for="keyword">ค้นหากิจกรรม/วิทยากร:</label>
+                    <input type="text" id="keyword" placeholder="พิมพ์คำค้นหา...">
+                </div>
+
+                <div class="form-group">
+                    <label for="filter-category">ประเภทกิจกรรม:</label>
+                    <select id="filter-category">
+                        <option value="all">ทั้งหมด (All)</option>
+                        <option value="tech">Tech</option>
+                        <option value="design">Design</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date-sort">เรียงลำดับตาม:</label>
+                    <select id="date-sort">
+                        <option value="date-asc">วันที่ (น้อยไปมาก)</option>
+                        <option value="date-desc">วันที่ (มากไปน้อย)</option>
+                        <option value="seats-desc">ที่นั่งว่าง (มากไปน้อย)</option>
+                    </select>
+                </div>
+
+                <button type="reset" id="btn-reset">🔄 คืนค่าข้อมูลเริ่มต้น</button>
+            </aside>
+        </div>
+
+        <div class="content-area">
+            <section id="events-section">
+                <h3>รายการกิจกรรมและเวิร์กช็อป</h3>
+                <div id="event-cards-container">
+
+                    <div class="event-card" data-category="tech" data-id="1">
+                        <h4 class="event-title">Modern JavaScript & ES6+ Workshop</h4>
+                        <p>หมวดหมู่: <strong>Tech</strong></p>
+                        <p>วิทยากร: <span class="speaker-name">Dr. Somchai Dev</span></p>
+                        <p>วันที่จัดงาน: <span class="event-date">2026-09-15</span></p>
+                        <p>จำนวนที่นั่งว่าง: <span class="available-seats">5</span> ที่</p>
+                        <p class="event-description">เจาะลึกการใช้งาน JavaScript ยุคใหม่ อธิบายเรื่อง Async/Await, Closure และ Modules</p>
+                        <button type="button" class="register-btn">ลงทะเบียน</button>
+                    </div>
+
+                    <div class="event-card" data-category="design" data-id="2">
+                        <h4 class="event-title">UX/UI Design System Creation</h4>
+                        <p>หมวดหมู่: <strong>Design</strong></p>
+                        <p>วิทยากร: <span class="speaker-name">Aj. Ananya Design</span></p>
+                        <p>วันที่จัดงาน: <span class="event-date">2026-09-20</span></p>
+                        <p>จำนวนที่นั่งว่าง: <span class="available-seats">0</span> ที่</p>
+                        <p class="event-description">การสร้าง Design System สำหรับองค์กรขนาดใหญ่ด้วย Figma และการเชื่อมต่อกับ CSS</p>
+                        <button type="button" class="register-btn">ลงทะเบียน</button>
+                    </div>
+
+                    <div class="event-card" data-category="business" data-id="3">
+                        <h4 class="event-title">Startup Pitching & Funding 101</h4>
+                        <p>หมวดหมู่: <strong>Business</strong></p>
+                        <p>วิทยากร: <span class="speaker-name">Khun Vorapat VC</span></p>
+                        <p>วันที่จัดงาน: <span class="event-date">2026-09-25</span></p>
+                        <p>จำนวนที่นั่งว่าง: <span class="available-seats">12</span> ที่</p>
+                        <p class="event-description">เทคนิคการนำเสนอแผนธุรกิจเพื่อระดมทุนสำหรับนักศึกษาสายเทคโนโลยี</p>
+                        <button type="button" class="register-btn">ลงทะเบียน</button>
+                    </div>
+
+                    <div class="event-card" data-category="tech" data-id="4">
+                        <h4 class="event-title">Cybersecurity Essentials for Web Apps</h4>
+                        <p>หมวดหมู่: <strong>Tech</strong></p>
+                        <p>วิทยากร: <span class="speaker-name">Dr. Prasit Security</span></p>
+                        <p>วันที่จัดงาน: <span class="event-date">2026-10-01</span></p>
+                        <p>จำนวนที่นั่งว่าง: <span class="available-seats">8</span> ที่</p>
+                        <p class="event-description">เรียนรู้ช่องโหว่พื้นฐาน OWASP Top 10 และแนวทางการป้องกันบน Web Front-end</p>
+                        <button type="button" class="register-btn">ลงทะเบียน</button>
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="admin-panel" hidden>
+                <button type="button" id="close-btn">&times;</button>
+                <h4>เพิ่มกิจกรรมใหม่ (Admin Only)</h4>
+                
+                <form id="add-event-form">
+                    <div class="form-group">
+                        <label for="event-name">ชื่อกิจกรรม *</label>
+                        <input type="text" id="event-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-category">ประเภท *</label>
+                        <select id="event-category" required>
+                            <option value="tech">Tech</option>
+                            <option value="design">Design</option>
+                            <option value="business">Business</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="speaker-name">ชื่อวิทยากร *</label>
+                        <input type="text" id="speaker-name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-date">วันที่จัดงาน *</label>
+                        <input type="date" id="event-date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="seats">จำนวนที่นั่งที่เปิดรับ *</label>
+                        <input type="number" id="seats" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">รายละเอียดกิจกรรม *</label>
+                        <input type="text" id="description" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="cancel-btn">ยกเลิก</button>
+                        <button type="submit" id="save-event-btn">บันทึกกิจกรรม</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 CS Midterm Examination - Web Programming</p>
+    </footer>
+</body>
+</html>
