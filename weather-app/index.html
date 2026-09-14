@@ -5,23 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <!-- <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>
-       <img src="assets/logo-weather-app.png" alt="logo" class="header-icon">
-        Weather Dashboard
-    </h1>
-    <div class="search-box">
-        <h3>Weather Dashboard</h3>
+    <div class="container">
+        <h1>
+        <img src="assets/logo-weather-app.png" alt="logo" class="header-icon">
+            Weather Dashboard
+        </h1>
         <div class="search-box">
-            <input type="text" id="cityInput">
-            <button id="searchBtn">ค้นหา</button>
+            <h3>Weather Dashboard</h3>
+            <div class="search-box">
+                <input type="text" id="cityInput" placeholder="เช่น กรุงเทพมหานคร, พระนครศรีอยุธยา...">
+                <button id="searchBtn">ค้นหา</button>
+            </div>
+            <div id="loading" class="hidden">กำลังโหลดข้อมูล...</div>
+            <div id="weatherResult" class="hidden"></div>
+            <div id="error" class="hidden"></div>
         </div>
-        <div id="loading" class="hidden">กำลังโหลดข้อมูล...</div>
-        <div id="weatherResult" class="hidden"></div>
-        <div id="error" class="hidden"></div>
+
+        <script src="app.js"></script>
     </div>
-    <script src="app.js"></script>
 </body>
 </html>

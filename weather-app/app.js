@@ -26,24 +26,50 @@ function displayWeather(data, city) {
     const temp = Math.round(data.main.temp);           
     const humidity = data.main.humidity;   
     const wind = data.wind.speed;         
+    const description = data.weather[0]?.description || '';
+    
+    // ไอคอนสภาพอากาศจริงจาก OpenWeatherMap
+    const iconCode = data.weather[0]?.icon;
+    const iconUrl = iconCode ? `https://openweathermap.org/img/wn/${iconCode}@2x.png` : '';
+
+    // จัดการเรื่อง country / city name ป้องกัน undefined
+    const cityName = data.name || 'ไม่ระบุชื่อเมือง';
+    const country = data.sys && data.sys.country ? ` (${data.sys.country})` : '';
 
     const html = `
         <div class="weather-card">
-            <div class="icon">☀️</div>
-            <div class="info">
-                <h2>${temp} °C</h2>
-                <p><strong>${data.name}</strong> (${city})</p>
-                <p>${data.weather[0].description}</p>
+            <div class="weather-info-main">
+                ${iconUrl ? `<img src="${iconUrl}" alt="${description}" class="weather-icon">` : '<div class="icon">☀️</div>'}
+                <div class="info">
+                    <h2>${temp} °C</h2>
+                    <p><strong>${cityName}</strong>${country}</p>
+                    <p class="desc">${description}</p>
+                </div>
             </div>
             <div class="details">
-                <p>ความชื้น: ${humidity}%</p>
-                <p>ความเร็วลม: ${wind} m/s</p>
+                <p>ความชื้น: <strong>${humidity}%</strong></p>
+                <p>ความเร็วลม: <strong>${wind} m/s</strong></p>
             </div>
         </div>
     `;
 
     weatherResult.innerHTML += html; 
     weatherResult.classList.remove('hidden');
+}
+
+async function loadMultipleCities(cities) {
+    const promises = cities.map(city => fetchWeather(city));
+
+    const results = await Promise.allSettled(promises);
+
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+            displayWeather(result.value);
+        } else {
+            errorDiv.innerHTML += `<p>⚠️ ไม่พบข้อมูลเมือง: ${cities[index]}</p>`;
+            errorDiv.classList.remove('hidden');
+        }
+    });
 }
 
 async function loadWeather() {
@@ -66,20 +92,12 @@ async function loadWeather() {
 
     try {
         await loadMultipleCities(cities);
+    } catch (error) {
+        errorDiv.innerHTML = '<p>⚠️ เกิดข้อผิดพลาดในการดึงข้อมูล</p>';
+        errorDiv.classList.remove('hidden');
     } finally {
+        // ปิดสถานะ Loading เสมอ ไม่ว่าสำเร็จหรือล้มเหลว
         loading.classList.add('hidden');
-    }
-}
-
-async function loadMultipleCities(cities) {
-    for (const city of cities) {
-        try {
-            const data = await fetchWeather(city);
-            displayWeather(data, city);
-        } catch (error) {
-            errorDiv.innerHTML += `<p>⚠️ ไม่พบข้อมูลเมือง: ${city}</p>`;
-            errorDiv.classList.remove('hidden');
-        }
     }
 }
 
