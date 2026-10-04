@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "Laptop",
+    "price": 12900,
+    "image": "/laptop.svg",
+    "category": "Computer",
+    "rating": 4.8,
+    "description": "โน้ตบุ๊กประสิทธิภาพสูง ใช้งานได้ตลอดปี ตลอดไป"
+  },
+  {
+    "id": 2,
+    "name": "Headphones",
+    "price": 1290,
+    "image": "/headphones.svg",
+    "category": "Audio",
+    "rating": 4.5,
+    "description": "หูฟังไร้สายคุณภาพเสียงคมชัด ดีไซน์เก๋"
+  },
+  {
+    "id": 3,
+    "name": "Backpack",
+    "price": 890,
+    "image": "/backpack.svg",
+    "category": "Fashion",
+    "rating": 4.2,
+    "description": "กระเป๋าเป้สะพายหลังสำหรับท่องโลกกว้าง ทึกทน"
+  },
+  {
+    "id": 4,
+    "name": "Smart Watch",
+    "price": 2990,
+    "image": "/smart_watch.svg",
+    "category": "Gadget",
+    "rating": 4.7,
+    "description": "นาฬิกาอัจฉริยะวัดทุกค่าของร่างกาย"
+  }
+]
