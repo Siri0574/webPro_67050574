@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { getProducts, createProduct, updateProduct, deleteProduct } from '../services/productApi';
 
+const emptyForm = { name: '', price: '', category: 'Computer', image: '/laptop.svg', description: '' };
+
 export default function ProductManagement() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ name: '', price: '', category: 'Computer', image: '/laptop.svg', description: '' });
+  const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState('');
 
   const fetchAllProducts = async () => {
@@ -15,9 +18,9 @@ export default function ProductManagement() {
       setLoading(true);
       const data = await getProducts();
       setProducts(data);
-      setError(null);
+      setError('');
     } catch (err) {
-      setError(err.message);
+      setError('ไม่สามารถโหลดข้อมูลสินค้าได้');
     } finally {
       setLoading(false);
     }
@@ -27,40 +30,52 @@ export default function ProductManagement() {
     fetchAllProducts();
   }, []);
 
+  function openAddModal() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setFormError('');
+    setIsModalOpen(true);
+  }
+
+  function startEdit(product) {
+    setEditingId(product.id);
+    setForm({
+      name: product.name,
+      price: String(product.price),
+      category: product.category || 'Computer',
+      image: product.image || '/laptop.svg',
+      description: product.description || '',
+    });
+    setFormError('');
+    setIsModalOpen(true);
+  }
+
+  function closeModal() {
+    setIsModalOpen(false);
+    setEditingId(null);
+    setForm(emptyForm);
+    setFormError('');
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.price || Number(formData.price) <= 0) {
-      setFormError('กรุณากรอกชื่อสินค้าและราคาให้ถูกต้อง');
+    if (!form.name.trim() || !form.price || Number(form.price) <= 0) {
+      setFormError('กรุณากรอกชื่อสินค้าและราคาให้ถูกต้อง (ราคาต้องมากกว่า 0)');
       return;
     }
 
     try {
-      setFormError('');
-      const payload = { ...formData, price: Number(formData.price) };
-
+      const payload = { ...form, price: Number(form.price) };
       if (editingId) {
         await updateProduct(editingId, payload);
       } else {
         await createProduct(payload);
       }
-
-      setFormData({ name: '', price: '', category: 'Computer', image: '/laptop.svg', description: '' });
-      setEditingId(null);
+      closeModal();
       fetchAllProducts();
     } catch (err) {
       alert(err.message);
     }
-  };
-
-  const handleEdit = (product) => {
-    setEditingId(product.id);
-    setFormData({
-      name: product.name,
-      price: product.price,
-      category: product.category || 'Computer',
-      image: product.image || '/laptop.svg',
-      description: product.description || '',
-    });
   };
 
   const handleDelete = async (id) => {
@@ -74,94 +89,160 @@ export default function ProductManagement() {
     }
   };
 
-  const handleCancelEdit = () => {
-    setEditingId(null);
-    setFormData({ name: '', price: '', category: 'Computer', image: '/laptop.svg', description: '' });
-    setFormError('');
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center p-10">
+        <span className="loading loading-spinner loading-lg text-primary" />
+      </div>
+    );
+  }
 
-  if (loading) return <div className="text-center py-10 font-bold">Loading products...</div>;
-  if (error) return <div className="text-center py-10 text-red-500 font-bold">Error: {error}</div>;
+  if (error) {
+    return (
+      <div role="alert" className="alert alert-error">
+        <span>{error}</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-gray-800">Product Management (Admin)</h1>
+    <section className="space-y-6">
+      <div className="breadcrumbs text-sm">
+        <ul>
+          <li>Admin</li>
+          <li>Products</li>
+        </ul>
+      </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4">
-        <h2 className="text-xl font-bold text-gray-700">{editingId ? 'Edit Product' : 'Add New Product'}</h2>
-        
-        {formError && <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">{formError}</div>}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full border p-2 rounded focus:ring-2 focus:ring-indigo-500"
-              placeholder="e.g. Mouse"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Price (฿)</label>
-            <input
-              type="number"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              className="w-full border p-2 rounded focus:ring-2 focus:ring-indigo-500"
-              placeholder="e.g. 450"
-            />
-          </div>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Product Management</h1>
+          <p className="mt-1 opacity-70">Manage your store products and inventory</p>
         </div>
+        <button onClick={openAddModal} className="btn btn-primary">
+          + Add Product
+        </button>
+      </div>
 
-        <div className="flex gap-2">
-          <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 font-semibold">
-            {editingId ? 'Save Changes' : 'Add Product'}
-          </button>
-          {editingId && (
-            <button type="button" onClick={handleCancelEdit} className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">
-              Cancel
-            </button>
-          )}
-        </div>
-      </form>
-
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {products.length === 0 ? (
-          <div className="p-6 text-center text-gray-500 font-semibold">ไม่มีรายการสินค้าในระบบ (Empty State)</div>
-        ) : (
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-100 border-b">
+      {/* Product Table */}
+      <div className="overflow-x-auto rounded-box bg-base-100 shadow-md">
+        <table className="table table-zebra w-full">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th className="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.length === 0 ? (
               <tr>
-                <th className="p-4 font-semibold">ID</th>
-                <th className="p-4 font-semibold">Name</th>
-                <th className="p-4 font-semibold">Category</th>
-                <th className="p-4 font-semibold">Price</th>
-                <th className="p-4 font-semibold text-center">Actions</th>
+                <td colSpan="5" className="text-center py-6 opacity-60">
+                  ไม่มีรายการสินค้าในระบบ
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr key={p.id} className="border-b hover:bg-gray-50">
-                  <td className="p-4">{p.id}</td>
-                  <td className="p-4 font-medium">{p.name}</td>
-                  <td className="p-4 text-sm text-gray-600">{p.category}</td>
-                  <td className="p-4 text-indigo-600 font-bold">฿{p.price}</td>
-                  <td className="p-4 text-center space-x-2">
-                    <button onClick={() => handleEdit(p)} className="bg-amber-500 text-white px-3 py-1 rounded text-sm hover:bg-amber-600">
-                      Edit
-                    </button>
-                    <button onClick={() => handleDelete(p.id)} className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
-                      Delete
-                    </button>
+            ) : (
+              products.map((product) => (
+                <tr key={product.id}>
+                  <td className="font-mono text-xs">{product.id}</td>
+                  <td className="font-medium">{product.name}</td>
+                  <td>
+                    <span className="badge badge-outline">{product.category}</span>
+                  </td>
+                  <td className="font-bold text-primary">
+                    ฿{Number(product.price).toLocaleString('en-US')}
+                  </td>
+                  <td>
+                    <div className="flex justify-center gap-2">
+                      <button onClick={() => startEdit(product)} className="btn btn-info btn-sm">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(product.id)} className="btn btn-error btn-sm">
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
-    </div>
+
+      {/* DaisyUI Modal */}
+      {isModalOpen && (
+        <div className="modal modal-open">
+          <div className="modal-box max-w-lg">
+            <h3 className="font-bold text-lg mb-4">
+              {editingId ? 'Edit Product' : 'Add New Product'}
+            </h3>
+
+            {formError && (
+              <div role="alert" className="alert alert-error text-sm mb-4 py-2">
+                <span>{formError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="label">
+                  <span className="label-text font-medium">Product Name</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="e.g. Wireless Mouse"
+                  className="input input-bordered w-full"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="label">
+                  <span className="label-text font-medium">Price (฿)</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={form.price}
+                  onChange={(e) => setForm({ ...form, price: e.target.value })}
+                  placeholder="450"
+                  className="input input-bordered w-full"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="label">
+                  <span className="label-text font-medium">Category</span>
+                </label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="select select-bordered w-full"
+                >
+                  <option value="Computer">Computer</option>
+                  <option value="Audio">Audio</option>
+                  <option value="Fashion">Fashion</option>
+                  <option value="Gadget">Gadget</option>
+                </select>
+              </div>
+
+              <div className="modal-action">
+                <button type="button" onClick={closeModal} className="btn btn-ghost">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {editingId ? 'Save Changes' : 'Add Product'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </section>
   );
 }
